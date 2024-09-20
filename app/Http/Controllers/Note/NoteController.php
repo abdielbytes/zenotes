@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
 use App\Models\Note;
+use Inertia\Inertia;
 
 class NoteController extends Controller
 {
@@ -22,7 +23,7 @@ class NoteController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Notes/Create');
     }
 
     /**
@@ -30,6 +31,7 @@ class NoteController extends Controller
      */
     public function store(StoreNoteRequest $request)
     {
+        return redirect()->route('notes.index');
 
     }
 
