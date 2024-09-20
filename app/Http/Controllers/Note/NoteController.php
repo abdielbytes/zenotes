@@ -23,6 +23,7 @@ class NoteController extends Controller
      */
     public function create()
     {
+//        dd("hwllo");
         return Inertia::render('Notes/Create');
     }
 
@@ -31,8 +32,14 @@ class NoteController extends Controller
      */
     public function store(StoreNoteRequest $request)
     {
-        return redirect()->route('notes.index');
+        // Validate and store the note in the database
+        $note = Note::create([
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+        ]);
 
+        // Redirect to the notes index page with success message
+        return Redirect::route('notes.index')->with('success', 'Notes created successfully!');
     }
 
     /**
