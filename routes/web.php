@@ -27,5 +27,7 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+//Notes
 
+Route::get('/notes/create', [NoteController::class, 'create'])->name('notes.create');
 Route::resource('notes', NoteController::class);
