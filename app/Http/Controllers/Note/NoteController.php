@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Note;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreNoteRequest;
-use App\Http\Requests\UpdateNoteRequest;
 use App\Models\Note;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Redirect;
 
 class NoteController extends Controller
 {
@@ -15,7 +15,9 @@ class NoteController extends Controller
      */
     public function index()
     {
-        //
+        $notes = Note::where('user_id', auth()->id())->get();
+
+        return Inertia::render('Notes/Index', ['notes' => $notes]);
     }
 
     /**
@@ -23,23 +25,26 @@ class NoteController extends Controller
      */
     public function create()
     {
-//        dd("hwllo");
         return Inertia::render('Notes/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreNoteRequest $request)
+    public function store(Request $request)
     {
-        // Validate and store the note in the database
-        $note = Note::create([
-            'title' => $request->input('title'),
-            'content' => $request->input('content'),
+        $validated = $request->validate([
+            'title' => 'nullable|string|max:255',
+            'content' => 'required|string',
         ]);
 
-        // Redirect to the notes index page with success message
-        return Redirect::route('notes.index')->with('success', 'Notes created successfully!');
+        Note::create([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'user_id' => auth()->id(),
+        ]);
+
+        return Redirect::route('notes.index')->with('success', 'Note created successfully!');
     }
 
     /**
@@ -47,7 +52,11 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        //
+        if ($note->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        return Inertia::render('Notes/Show', ['note' => $note]);
     }
 
     /**
@@ -55,15 +64,30 @@ class NoteController extends Controller
      */
     public function edit(Note $note)
     {
-        //
+        if ($note->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        return Inertia::render('Notes/Edit', ['note' => $note]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateNoteRequest $request, Note $note)
+    public function update(Request $request, Note $note)
     {
-        //
+        if ($note->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $validated = $request->validate([
+            'title' => 'nullable|string|max:255',
+            'content' => 'required|string',
+        ]);
+
+        $note->update($validated);
+
+        return Redirect::route('notes.index')->with('success', 'Note updated successfully!');
     }
 
     /**
@@ -71,6 +95,12 @@ class NoteController extends Controller
      */
     public function destroy(Note $note)
     {
-        //
+        if ($note->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $note->delete();
+
+        return Redirect::route('notes.index')->with('success', 'Note deleted successfully!');
     }
 }
