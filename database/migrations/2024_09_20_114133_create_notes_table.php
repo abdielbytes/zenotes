@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notes', function (Blueprint $table) {
-            $table->uuid('note_id')->primary();
+            $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained();
-            $table->string('title');
+            $table->string('title')->default('Untitled Note');
             $table->text('content');
             $table->timestamps();
         });
