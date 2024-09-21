@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
+
 export default function CreateNote() {
     const { data, setData, post, processing, errors } = useForm({
         title: '',
