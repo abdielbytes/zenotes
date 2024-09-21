@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('notes', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained();
-            $table->string('title')->default('Untitled Note');
+            $table->string('title')->default('Untitled Note')->nullable();
             $table->text('content');
             $table->timestamps();
         });

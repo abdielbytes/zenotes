@@ -1,15 +1,82 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function CreateNote() {
-    // Inertia form setup for title and content
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         content: '',
     });
 
-    // Handle form submission
+    const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+    const [isListening, setIsListening] = useState(false);
+    const [interimTranscript, setInterimTranscript] = useState('');
+    const [finalTranscript, setFinalTranscript] = useState('');
+
+    const processText = (text) => {
+        text = text.trim();
+
+        text = text.replace(/\b(period)\b/gi, '.');
+        text = text.replace(/\b(comma)\b/gi, ',');
+        text = text.replace(/\b(new paragraph)\b/gi, '\n\n');
+
+        text = text.replace(/(^\w{1}|\.\s*\w{1}|\n\n\s*\w{1})/gi, function (char) {
+            return char.toUpperCase();
+        });
+
+        return text;
+    };
+
+    useEffect(() => {
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (window.SpeechRecognition) {
+            const speechRecognition = new window.SpeechRecognition();
+            speechRecognition.interimResults = true;
+            speechRecognition.continuous = true;
+
+            speechRecognition.addEventListener('result', (e) => {
+                let finalText = '';
+                let interimText = '';
+
+                Array.from(e.results).forEach((result) => {
+                    if (result.isFinal) {
+                        finalText += result[0].transcript;
+                    } else {
+                        interimText += result[0].transcript;
+                    }
+                });
+
+                setFinalTranscript(finalText);
+                setInterimTranscript(interimText);
+                setData('content', data.content + finalText);
+            });
+
+            speechRecognition.addEventListener('end', () => {
+                if (isListening) {
+                    speechRecognition.start();
+                }
+            });
+
+            setRecognition(speechRecognition);
+        } else {
+            alert('Speech recognition is not supported in this browser.');
+        }
+    }, [isListening, data]);
+
+    const startListening = () => {
+        if (recognition) {
+            recognition.start();
+            setIsListening(true);
+        }
+    };
+
+    const stopListening = () => {
+        if (recognition) {
+            recognition.stop();
+            setIsListening(false);
+        }
+    };
+
     const submit = (e: any) => {
         e.preventDefault();
         post(route('notes.store'));
@@ -79,16 +146,33 @@ export default function CreateNote() {
                                     )}
                                 </div>
 
-                                {/* Submit Button */}
-                                <div className="flex justify-end">
+                                {/* Speech Recognition Buttons */}
+                                <div className="flex items-center space-x-4">
                                     <button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:opacity-50"
+                                        type="button"
+                                        onClick={startListening}
+                                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-green-600 disabled:opacity-50"
+                                        disabled={isListening}
                                     >
-                                        Save Note
+                                        Start Listening
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={stopListening}
+                                        className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-red-600 disabled:opacity-50"
+                                        disabled={!isListening}
+                                    >
+                                        Stop Listening
                                     </button>
                                 </div>
+
+                                <p className="text-gray-500">
+                                    {interimTranscript && (
+                                        <>
+                                            <strong>Interim: </strong>{interimTranscript}
+                                        </>
+                                    )}
+                                </p>
                             </form>
                         </div>
                     </div>

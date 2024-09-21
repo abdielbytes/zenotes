@@ -33,19 +33,28 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate the request data
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'content' => 'required|string',
         ]);
 
+        // If the title is empty, set it to "Untitled Note"
+        if (empty($validated['title'])) {
+            $validated['title'] = 'Untitled Note';
+        }
+
+        // Create the note in the database
         Note::create([
             'title' => $validated['title'],
             'content' => $validated['content'],
-            'user_id' => auth()->id(),
+            'user_id' => auth()->id(),  // Assuming user is authenticated
         ]);
 
+        // Redirect to the notes index page with a success message
         return Redirect::route('notes.index')->with('success', 'Note created successfully!');
     }
+
 
     /**
      * Display the specified resource.
