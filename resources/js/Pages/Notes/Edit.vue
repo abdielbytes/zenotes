@@ -1,15 +1,21 @@
 <script setup>
+import { usePage, useForm, Head } from '@inertiajs/vue3'; // Ensure all necessary imports are included
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import InputError from '@/Components/InputError.vue';
-import { useForm, Head } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 
+// Get the note from props
+const { props } = usePage();
+const note = props.note;
+
+// Initialize form data with existing note title and content
 const form = useForm({
-    title: '',
-    note: '',
+    title: note.title || '', // Prefill with existing title or empty
+    note: note.content || '', // Prefill with existing content or empty
 });
 
+// Speech recognition setup
 const recognition = ref(null);
 const recognitionStarted = ref(false);
 const loaderVisible = ref(false);
@@ -17,6 +23,7 @@ const error = ref('');
 const finalText = ref('');
 const interimText = ref('');
 
+// Handle recognition results
 const handleRecognitionResult = (e) => {
     interimText.value = '';
     Array.from(e.results).forEach((result) => {
@@ -28,22 +35,22 @@ const handleRecognitionResult = (e) => {
             console.log('Interim transcript:', interimText.value);
         }
     });
-
-    form.note = finalText.value;
-    finalText.value = '';
-
+    form.note = finalText.value; // Update the note with final text
+    finalText.value = ''; // Reset final text after using it
 };
 
+// Start speech recognition
 const startRecognition = () => {
     if (!recognitionStarted.value && recognition.value) {
         recognition.value.start();
         recognitionStarted.value = true;
         loaderVisible.value = true;
         error.value = '';
-        console.log('Speech recognition started'); // Log start event
+        console.log('Speech recognition started');
     }
 };
 
+// Stop speech recognition
 const stopRecognition = () => {
     if (recognitionStarted.value && recognition.value) {
         recognition.value.stop();
@@ -53,7 +60,15 @@ const stopRecognition = () => {
     }
 };
 
+const submitForm = () => {
+    form.put(route('notes.update', note.id), {
+        onSuccess: () => form.reset(),
+    });
+};
+
+// Setup speech recognition on component mount
 onMounted(() => {
+
     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (window.SpeechRecognition) {
@@ -85,12 +100,12 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head title="Notes"/>
+    <Head title="Edit Note"/>
 
-    <AppLayout title="Create Note">
+    <AppLayout title="Edit Note">
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
 
-            <!-- Buttons moved to the top -->
+            <!-- Buttons to start and stop transcription -->
             <div class="flex justify-between mb-4">
                 <button @click="startRecognition" :disabled="recognitionStarted"
                         class="bg-blue-500 text-white px-4 py-2 rounded-md">
@@ -102,11 +117,12 @@ onMounted(() => {
                 </button>
             </div>
 
-            <!-- Show loader when recognition is active -->
-            <div v-if="loaderVisible" id="loader" class="mb-4 text-indigo-600">Listening...</div>
+            <!-- Loader and error message -->
+            <div v-if="loaderVisible" class="mb-4 text-indigo-600">Listening...</div>
             <p v-if="error" class="text-red-600">{{ error }}</p>
 
-            <form @submit.prevent="form.post(route('notes.store'), { onSuccess: () => form.reset() })">
+            <!-- Form for editing the note -->
+            <form @submit.prevent="form.put(route('notes.update', note.id), { onSuccess: () => form.reset() })">
                 <div class="relative mb-4">
                     <input
                         v-model="form.title"

@@ -6,6 +6,8 @@ use App\Models\Note;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Redirect;
+use Illuminate\Http\RedirectResponse;
+
 
 class NoteController extends Controller
 {
@@ -14,11 +16,12 @@ class NoteController extends Controller
      */
     public function index()
     {
-        $notes = Note::where('user_id', auth()->id())->latest()->paginate(10);
+        $notes = Note::where('user_id', auth()->id())
+            ->select('title', 'created_at')
+            ->latest()
+            ->paginate(10);
         return Inertia::render('Notes/Index', ['notes' => $notes]);
     }
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -31,23 +34,25 @@ class NoteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
+//        dd($request);
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
-            'content' => 'required|string',
+            'note' => 'required|string',
         ]);
-
+//    dd($validated);
         $validated['title'] = $validated['title'] ?? 'Untitled Note';
-
+//        dd($validated);
         Note::create([
             'title' => $validated['title'],
-            'content' => $validated['content'],
+            'content' => $validated['note'],
             'user_id' => auth()->id(),
         ]);
-
+//    dd("here");
         return Redirect::route('notes.index')->with('success', 'Note created successfully!');
     }
+
 
 
     /**
@@ -55,10 +60,12 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        $this->authorize('view', $note);
+        if ($note->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized access');
+        }
+//        dd($note);
         return Inertia::render('Notes/Show', ['note' => $note]);
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -83,7 +90,7 @@ class NoteController extends Controller
 
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
-            'content' => 'required|string',
+            'note' => 'required|string',
         ]);
 
         $note->update($validated);

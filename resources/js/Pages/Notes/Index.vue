@@ -1,3 +1,19 @@
+<script setup>
+import AppLayout from '@/Layouts/AppLayout.vue';
+import {ref} from 'vue';
+import {usePage} from '@inertiajs/vue3';
+
+// Get notes from the Inertia response
+const {props} = usePage();
+const notes = ref(props.notes);
+
+// Format the date to a more readable format
+const formatDate = (dateString) => {
+    const options = {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'};
+    return new Date(dateString).toLocaleDateString(undefined, options);
+};
+</script>
+
 <template>
     <Head title="All Notes" />
 
@@ -8,7 +24,7 @@
             <!-- Notes List -->
             <div class="bg-white shadow-sm sm:rounded-lg">
                 <ul>
-                    <li v-for="note in notes" :key="note.id" class="flex justify-between items-center border-b py-4 px-6">
+                    <li v-for="note in notes.data" :key="note.id" class="flex justify-between items-center border-b py-4 px-6">
                         <!-- Note Title -->
                         <div class="text-lg font-medium text-gray-900">
                             {{ note.title || 'Untitled Note' }}
@@ -25,21 +41,6 @@
     </AppLayout>
 </template>
 
-<script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
-import {ref} from 'vue';
-import {usePage} from '@inertiajs/vue3';
-
-// Get notes from the Inertia response
-const {props} = usePage();
-const notes = ref(props.notes);
-
-// Format the date to a more readable format
-const formatDate = (dateString) => {
-    const options = {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'};
-    return new Date(dateString).toLocaleDateString(undefined, options);
-};
-</script>
 
 <style scoped>
 /* Styling to enhance the layout */
