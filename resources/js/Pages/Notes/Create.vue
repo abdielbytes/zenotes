@@ -7,7 +7,7 @@ import { ref, onMounted } from 'vue';
 
 const form = useForm({
     title: '',
-    note: '',
+    content: '',
 });
 
 const recognition = ref(null);
@@ -29,7 +29,7 @@ const handleRecognitionResult = (e) => {
         }
     });
 
-    form.note = finalText.value;
+    form.content = finalText.value;
     finalText.value = '';
 
 };
@@ -118,12 +118,12 @@ onMounted(() => {
                 </div>
                 <div class="relative">
                     <textarea
-                        v-model="form.note"
+                        v-model="form.content"
                         placeholder="Your note goes here"
                         class="block w-[21cm] h-[29.7cm] border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm resize-none overflow-auto p-4"
                         style="min-width: 21cm; min-height: 29.7cm;"
                     ></textarea>
-                    <InputError :message="form.errors.note" class="mt-2"/>
+                    <InputError :message="form.errors.content" class="mt-2"/>
                 </div>
                 <PrimaryButton class="mt-4">Save</PrimaryButton>
             </form>

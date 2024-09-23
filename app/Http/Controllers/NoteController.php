@@ -17,7 +17,7 @@ class NoteController extends Controller
     public function index()
     {
         $notes = Note::where('user_id', auth()->id())
-            ->select('title', 'created_at')
+            ->select('id', 'title', 'created_at')
             ->latest()
             ->paginate(10);
         return Inertia::render('Notes/Index', ['notes' => $notes]);
@@ -36,20 +36,16 @@ class NoteController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-//        dd($request);
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
-            'note' => 'required|string',
+            'content' => 'required|string',
         ]);
-//    dd($validated);
         $validated['title'] = $validated['title'] ?? 'Untitled Note';
-//        dd($validated);
         Note::create([
             'title' => $validated['title'],
-            'content' => $validated['note'],
+            'content' => $validated['content'],
             'user_id' => auth()->id(),
         ]);
-//    dd("here");
         return Redirect::route('notes.index')->with('success', 'Note created successfully!');
     }
 
@@ -63,7 +59,6 @@ class NoteController extends Controller
         if ($note->user_id !== auth()->id()) {
             abort(403, 'Unauthorized access');
         }
-//        dd($note);
         return Inertia::render('Notes/Show', ['note' => $note]);
     }
 
@@ -90,7 +85,7 @@ class NoteController extends Controller
 
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
-            'note' => 'required|string',
+            'content' => 'required|string',
         ]);
 
         $note->update($validated);

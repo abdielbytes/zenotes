@@ -23,6 +23,10 @@ console.log('Note:', note);
                 <Link :href="route('notes.edit', note.id)" class="bg-blue-500 text-white px-4 py-2 rounded-md">
                     Edit Note
                 </Link>
+                <Link :href="route('notes.delete', note.id)" class="bg-red-500 text-white px-4 py-2 rounded-md">
+                    Delete Note
+                </Link>
+
                 <Link :href="route('notes.index')" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-md">
                     Back to Notes
                 </Link>
