@@ -35,7 +35,7 @@ const handleRecognitionResult = (e) => {
             console.log('Interim transcript:', interimText.value);
         }
     });
-    form.note = finalText.value; // Update the note with final text
+    form.content = finalText.value; // Update the note with final text
     finalText.value = ''; // Reset final text after using it
 };
 
@@ -134,12 +134,12 @@ onMounted(() => {
                 </div>
                 <div class="relative">
                     <textarea
-                        v-model="form.note"
+                        v-model="form.content"
                         placeholder="Your note goes here"
                         class="block w-[21cm] h-[29.7cm] border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm resize-none overflow-auto p-4"
                         style="min-width: 21cm; min-height: 29.7cm;"
                     ></textarea>
-                    <InputError :message="form.errors.note" class="mt-2"/>
+                    <InputError :message="form.errors.content" class="mt-2"/>
                 </div>
                 <PrimaryButton class="mt-4">Save</PrimaryButton>
             </form>
