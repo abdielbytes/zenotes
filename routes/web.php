@@ -26,3 +26,6 @@ Route::middleware([
 
 Route::resource('notes', NoteController::class)
     ->middleware(['auth', 'verified']);
+
+
+Route::get('/notes/{note}/format', [NoteController::class, 'formatText'])->name('notes.format');
