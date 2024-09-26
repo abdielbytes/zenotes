@@ -36,20 +36,35 @@ class NoteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'content' => 'required|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
         ]);
+
         $validated['title'] = $validated['title'] ?? 'Untitled Note';
-        Note::create([
+
+        $note = Note::create([
             'title' => $validated['title'],
             'content' => $validated['content'],
             'user_id' => auth()->id(),
         ]);
+
+        // Attach tags
+        if (isset($validated['tags'])) {
+            foreach ($validated['tags'] as $tagName) {
+                $tag = Tag::firstOrCreate(['name' => $tagName]); // Create or get existing tag
+                $note->tags()->attach($tag);
+            }
+        }
+
         return Redirect::route('notes.index')->with('success', 'Note created successfully!');
     }
+
 
 
 
@@ -88,12 +103,28 @@ class NoteController extends Controller
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'content' => 'required|string',
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
         ]);
 
-        $note->update($validated);
+        $note->update([
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+        ]);
+
+        // Sync tags
+        if (isset($validated['tags'])) {
+            $tagIds = [];
+            foreach ($validated['tags'] as $tagName) {
+                $tag = Tag::firstOrCreate(['name' => $tagName]); // Create or get existing tag
+                $tagIds[] = $tag->id;
+            }
+            $note->tags()->sync($tagIds); // Sync tags, adding new and removing old ones
+        }
 
         return Redirect::route('notes.index')->with('success', 'Note updated successfully!');
     }
+
 
     /**
      * Remove the specified resource from storage.
