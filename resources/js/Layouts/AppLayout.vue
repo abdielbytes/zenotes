@@ -24,14 +24,15 @@ const logout = () => {
 <template>
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         <div class="google-doc-nav bg-white dark:bg-gray-900">
-            <div>
+            <div class="divo">
             <div class="menu-toggle" id="menu-toggle">
                 <div class="bar"></div>
                 <div class="bar"></div>
                 <div class="bar"></div>
             </div>
 
-                <img src="https://via.placeholder.com/100x30?text=Google+Docs" alt="Google Docs Logo">
+                <img src="/images/logo.webp" class="logoimg"
+                     alt="Google Docs Logo">
             </div>
             <input type="text" class="search-input" placeholder="Search...">
             <div @click="showingProfileDropdown = !showingProfileDropdown" class="relative">
@@ -80,12 +81,20 @@ const logout = () => {
 
 .bar {
     height: 3px;
-    max-width: 30px;
+    max-width: 50px;
     background-color: #333;
     margin: 4px 0;
     transition: 0.3s;
 }
+.divo {
+    display: flex;
+    align-items: center;
+}
+.logoimg {
+    width: 50px;
+    height: 50px;
 
+}
 .search-input {
     flex: 1;
     margin: 0 20px;
