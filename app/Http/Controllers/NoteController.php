@@ -22,6 +22,7 @@ class NoteController extends Controller
             ->select('id', 'title', 'created_at')
             ->latest()
             ->paginate(10);
+//        dd($notes);
         return Inertia::render('Notes/Index', ['notes' => $notes]);
     }
 
