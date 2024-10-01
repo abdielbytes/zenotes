@@ -6,6 +6,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "alimranahmed/laraocr": "^1.2",
+        "codewithkyrian/transformers": "*",
         "inertiajs/inertia-laravel": "^1.0",
         "laravel/framework": "^11.9",
         "laravel/jetstream": "^5.2",
@@ -61,7 +63,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "codewithkyrian/transformers-libsloader": true
         }
     },
     "minimum-stability": "stable",
