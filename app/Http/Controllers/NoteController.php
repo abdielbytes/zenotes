@@ -18,10 +18,13 @@ class NoteController extends Controller
      */
     public function index()
     {
+//        dd("hit");
         $notes = Note::where('user_id', auth()->id())
             ->select('id', 'title', 'created_at')
             ->latest()
             ->paginate(10);
+//        $notes = Note::where('user_id', auth()->id())->get();
+//        $notes = Note::all();
 //        dd($notes);
         return Inertia::render('Notes/Index', ['notes' => $notes]);
     }

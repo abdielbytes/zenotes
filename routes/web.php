@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\ImageToTextController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -29,3 +30,4 @@ Route::resource('notes', NoteController::class)
 
 
 Route::get('/notes/{note}/format', [NoteController::class, 'formatText'])->name('notes.format');
+//Route::get('image', ImageToTextController::class, 'image')->name('image');

@@ -1,9 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, defineProps } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import ApplicationMark from '@/Components/ApplicationMark.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+
+// Props
+const props = defineProps(['notes']);
 
 // States for dropdowns
 const showingNavigationDropdown = ref(false);
@@ -23,13 +26,11 @@ const logout = () => {
     router.post(route('logout'));
 };
 
-// Mock notes data for demonstration; replace with actual data from props or state
-const notes = ref([]);
-
 // Date formatting function
 const formatDate = (date) => {
     return new Date(date).toLocaleDateString(); // Adjust format as necessary
 };
+
 </script>
 
 <template>
@@ -69,13 +70,21 @@ const formatDate = (date) => {
         <h1 class="text-2xl font-bold mb-6">Notes</h1>
 
         <!-- Notes List -->
-        <div class="bg-white shadow-sm sm:rounded-lg">
+        <div class="bg-white shadow-sm sm:rounded-lg w-1/2 mx-auto">
+            <!-- Create Note Link -->
+            <div class="flex justify-end p-4">
+                <Link :href="route('notes.create')" class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                    Create Note
+                </Link>
+            </div>
+
             <ul>
-                <li v-for="note in notes" :key="note.id" class="flex justify-between items-center border-b py-4 px-6">
+                <li v-if="props.notes.data.length === 0" class="text-center text-gray-500">No notes available.</li>
+                <li v-for="note in props.notes.data" :key="note.id" class="flex justify-between items-center border-b py-4 px-6">
                     <Link :href="route('notes.show', note.id)" class="flex-1">
                         <!-- Note Title -->
                         <div class="text-lg font-medium text-gray-900">
-                            {{ note.title || 'Untitled Note' }}
+                            {{ note.title }}
                         </div>
                     </Link>
                     <!-- Creation Date -->
@@ -84,6 +93,24 @@ const formatDate = (date) => {
                     </div>
                 </li>
             </ul>
+        </div>
+
+
+        <!-- Pagination Controls -->
+        <div class="flex justify-between mt-4">
+            <button
+                v-if="props.notes.current_page > 1"
+                @click="router.get(route('notes.index', { page: props.notes.current_page - 1 }))"
+                class="bg-blue-500 text-white px-4 py-2 rounded">
+                Previous
+            </button>
+            <span>Page {{ props.notes.current_page }} of {{ props.notes.last_page }}</span>
+            <button
+                v-if="props.notes.current_page < props.notes.last_page"
+                @click="router.get(route('notes.index', { page: props.notes.current_page + 1 }))"
+                class="bg-blue-500 text-white px-4 py-2 rounded">
+                Next
+            </button>
         </div>
     </div>
 </template>
